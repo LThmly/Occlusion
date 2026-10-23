@@ -1,0 +1,17 @@
+# DA3 import-time dependencies for the pinned source in README.md.
+# Torch/torchvision are installed separately from the CPU or CUDA wheel index.
+# xformers, gsplat, Open3D and the upstream web app are not needed here.
+addict
+einops
+evo
+huggingface-hub
+imageio
+moviepy==1.0.3
+omegaconf
+pillow
+plyfile
+pycolmap
+safetensors
+scipy
+trimesh
+e3nn
