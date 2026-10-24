@@ -11,9 +11,11 @@ dependencies = ["numpy>=1.24,<2", "opencv-python>=4.8,<4.12"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+viewer = ["rerun-sdk>=0.22,<0.23", "pyarrow>=14,<20"]
 
 [project.scripts]
 occlusion = "occlusion.main:main"
+occlusion-viewer = "occlusion.visualizer:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

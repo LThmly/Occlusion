@@ -596,3 +596,62 @@ Calibration tolerances, board placement, candidate count, voxel width, depth ran
 6. OpenCV. **Camera Calibration and 3D Reconstruction.** Projection, pose estimation, and hand–eye conventions. [Documentation](https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html).
 
 Depth Anything 3 was publicly released in November 2025, making it the project's recent technology component. Hackathon eligibility depends on the event's actual date and rules; older active-vision references establish research context. [Upstream release announcement](https://github.com/ByteDance-Seed/Depth-Anything-3#-news)
+
+### Dual-camera Rerun visualizer
+
+Install the optional viewer alongside the existing DA3 inference environment:
+
+```bash
+pip install -e '.[viewer]'
+occlusion-viewer --wrist-camera /dev/video2 --overhead-camera /dev/video0
+```
+
+This opens wrist/overhead RGB and numeric depth panels and a shared 3D view.
+Switch between **RGB overlay** and **Camera identity overlay** (orange wrist,
+blue overhead). Toggle individual camera entities in Rerun to inspect overlap;
+the observation timeline supports scrubbing. Each observation replaces the clouds,
+rather than accumulating stale wrist poses. Ctrl-C stops acquisition. Both RGB
+frames are read before sequential DA3 inference; capture is not hardware synchronized
+and CPU inference limits the update rate. The RGB panels show the processed images
+aligned to the depth grid.
+
+Replay saved captures without loading DA3 or opening cameras:
+
+```bash
+occlusion-viewer --wrist-capture data/wrist-depth/CAPTURE_DIRECTORY \
+  --overhead-capture data/overhead-depth/CAPTURE_DIRECTORY
+# Add --save data/dual-camera.rrd for headless export; open with rerun later.
+```
+
+Saved inputs must contain `rgb_processed.png`, `depth.npy`, and `prediction.npz`
+from a depth capture. `--frames 1` runs one live pair; `--stride 2` increases
+point density; `--max-depth 5` clips points after depth scaling.
+
+By default, both clouds use their model-predicted intrinsics and identity poses.
+This is a **diagnostic superposition**, not calibrated reconstruction: independent
+DA3 predictions have arbitrary per-observation scale. Model extrinsics are not
+used as shared world poses. For aligned inspection, pass `--geometry geometry.json`
+with this structure (identity values below illustrate the schema, not calibration):
+
+```json
+{
+  "wrist": {
+    "intrinsics": [[250, 0, 126], [0, 250, 126], [0, 0, 1]],
+    "world_from_camera": [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
+    "depth_scale": 1.0
+  },
+  "overhead": {
+    "intrinsics": [[250, 0, 126], [0, 250, 126], [0, 0, 1]],
+    "world_from_camera": [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
+    "depth_scale": 1.0
+  }
+}
+```
+
+Intrinsics must match the processed depth pixel grid and images must already be
+undistorted if needed. Poses map OpenCV camera coordinates (right, down, forward)
+into the same world frame. `depth_scale` multiplies axial depth; translations must
+use the resulting units. Optional intrinsics default to the model prediction.
+The file defines fixed poses/scales: hold the wrist stationary, and use scales
+validated for the observations being compared. Moving-wrist pose tracking and
+metric scale estimation are not supplied by this viewer.
