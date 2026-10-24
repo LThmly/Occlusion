@@ -1,0 +1,30 @@
+{
+  "intrinsics_source": "model_prediction_not_calibration",
+  "warning": "Diagnostic only: intrinsics unvalidated and lens distortion uncorrected",
+  "observation": "data/analysis/overhead-504/20261024T033518.265299Z-97360a04",
+  "units": "relative_not_meters",
+  "frame": "camera_opencv",
+  "depth_definition": "optical_axis_z",
+  "point_count": 47628,
+  "stride": 2,
+  "processed_intrinsics": [
+    [
+      648.4802856445312,
+      0.0,
+      252.0
+    ],
+    [
+      0.0,
+      643.7575073242188,
+      189.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "distortion_corrected_in_rays": false,
+  "scale_validated": false,
+  "suitable_for_robot_control": false
+}

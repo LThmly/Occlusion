@@ -1,0 +1,46 @@
+{
+  "point_count": 12348,
+  "finite_coordinates": true,
+  "positive_camera_z": true,
+  "xyz_bounds_relative": [
+    [
+      -0.43057071,
+      -0.33518631,
+      0.71841586
+    ],
+    [
+      0.41440615,
+      0.20193279,
+      1.3873785
+    ]
+  ],
+  "rgb_range": [
+    6,
+    255
+  ],
+  "table_plane_diagnostic": {
+    "mask": "Manual exclusion rectangles for objects, in original RGB coordinates",
+    "table_point_count": 6872,
+    "median_abs_residual_relative_units": 0.012548435620805022,
+    "p95_abs_residual_relative_units": 0.02878654830638175,
+    "normal_camera_coordinates": [
+      -0.005830030089654857,
+      -0.7016122819948877,
+      -0.7125350633499238
+    ]
+  },
+  "region_height_diagnostics_relative_units": {
+    "bottle_interior": {
+      "count": 240,
+      "median_signed_distance_to_fitted_table": 0.20059319164488548
+    },
+    "phone_interior": {
+      "count": 133,
+      "median_signed_distance_to_fitted_table": 0.028911562972739502
+    },
+    "robot_interior": {
+      "count": 240,
+      "median_signed_distance_to_fitted_table": -0.00012136492127386275
+    }
+  }
+}

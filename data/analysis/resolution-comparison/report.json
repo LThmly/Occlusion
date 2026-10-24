@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "original_rgb_sha256": "b98701fad18a2d64169532b7a1cf02b6783ebb9eefa9b8b2037dda8620186797",
+  "reference_image_size": [
+    640,
+    480
+  ],
+  "intrinsics_source": "first_observation_model_prediction_shared_across_resolutions",
+  "original_image_intrinsics": [
+    [
+      1029.755626860119,
+      0.0,
+      320.0
+    ],
+    [
+      0.0,
+      993.3902911750638,
+      240.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "plane_threshold_fraction_of_median_depth": 0.02,
+  "normalized_distance_definition": "signed_plane_distance / camera_to_plane_distance",
+  "units": "dimensionless_not_metric_height",
+  "scale_validated": false,
+  "limitations": [
+    "Manual regions, not object segmentation",
+    "Uncalibrated intrinsics and lens distortion",
+    "Local shape diagnostic, not ground-truth accuracy or coverage",
+    "Same-image test only; no evidence of multi-view consistency"
+  ],
+  "regions": {
+    "description": "Manual interior regions for the shared bottle/phone/remote scene only; not a general segmentation model",
+    "reference_image_size": [
+      640,
+      480
+    ],
+    "table_boxes": [
+      [
+        20,
+        35,
+        115,
+        180
+      ],
+      [
+        20,
+        240,
+        210,
+        450
+      ],
+      [
+        490,
+        35,
+        620,
+        180
+      ],
+      [
+        400,
+        415,
+        620,
+        465
+      ]
+    ],
+    "object_boxes": {
+      "bottle": [
+        [
+          175,
+          45,
+          225,
+          165
+        ]
+      ],
+      "phone": [
+        [
+          345,
+          140,
+          440,
+          175
+        ]
+      ],
+      "robot": [
+        [
+          275,
+          270,
+          315,
+          420
+        ]
+      ],
+      "remote": [
+        [
+          490,
+          285,
+          510,
+          305
+        ],
+        [
+          540,
+          335,
+          560,
+          355
+        ]
+      ]
+    }
+  },
+  "observations": [
+    {
+      "observation": "data/overhead-depth/20261024T033417.716243Z-83ee4947",
+      "model": "depth-anything/DA3-SMALL",
+      "processing_resolution": 252,
+      "depth_shape": [
+        196,
+        252
+      ],
+      "valid_depth_fraction": 1.0,
+      "recorded_inference_seconds": 0.06565453200164484,
+      "plane_normal_camera": [
+        0.008260462449237473,
+        -0.65951239361735,
+        -0.7516483003541206
+      ],
+      "plane_offset_relative": 0.7458418390682278,
+      "plane_fit_inlier_fraction": 0.892,
+      "table_normalized_abs_residual_p50_p95": [
+        0.01036116427678551,
+        0.043090632613337614
+      ],
+      "objects": {
+        "bottle": {
+          "valid_samples": 980,
+          "normalized_signed_distance_p10_p50_p90": [
+            0.14941893805490766,
+            0.26297029438934927,
+            0.349343097763953
+          ],
+          "fraction_above_table_p95_residual": 1.0
+        },
+        "phone": {
+          "valid_samples": 532,
+          "normalized_signed_distance_p10_p50_p90": [
+            0.018476050415767366,
+            0.0253377578669534,
+            0.03235209990816433
+          ],
+          "fraction_above_table_p95_residual": 0.0
+        },
+        "robot": {
+          "valid_samples": 976,
+          "normalized_signed_distance_p10_p50_p90": [
+            -0.008273744120504304,
+            0.0033683315099094944,
+            0.02306714496623332
+          ],
+          "fraction_above_table_p95_residual": 0.0
+        },
+        "remote": {
+          "valid_samples": 128,
+          "normalized_signed_distance_p10_p50_p90": [
+            0.008151021010285458,
+            0.013874097881183965,
+            0.016841337300231827
+          ],
+          "fraction_above_table_p95_residual": 0.0
+        }
+      }
+    },
+    {
+      "observation": "data/analysis/overhead-504/20261024T033518.265299Z-97360a04",
+      "model": "depth-anything/DA3-SMALL",
+      "processing_resolution": 504,
+      "depth_shape": [
+        378,
+        504
+      ],
+      "valid_depth_fraction": 1.0,
+      "recorded_inference_seconds": 0.34016559799783863,
+      "plane_normal_camera": [
+        -0.0037536839554530347,
+        -0.6929619335798006,
+        -0.7209644016635678
+      ],
+      "plane_offset_relative": 0.8168451194977492,
+      "plane_fit_inlier_fraction": 0.9836,
+      "table_normalized_abs_residual_p50_p95": [
+        0.00758398781762581,
+        0.017888262210891754
+      ],
+      "objects": {
+        "bottle": {
+          "valid_samples": 3760,
+          "normalized_signed_distance_p10_p50_p90": [
+            0.19183630790001913,
+            0.2974322530925152,
+            0.38265858453246054
+          ],
+          "fraction_above_table_p95_residual": 0.9997340425531915
+        },
+        "phone": {
+          "valid_samples": 2025,
+          "normalized_signed_distance_p10_p50_p90": [
+            0.01625503573229367,
+            0.022491567085589397,
+            0.02633654354790773
+          ],
+          "fraction_above_table_p95_residual": 0.8167901234567901
+        },
+        "robot": {
+          "valid_samples": 3776,
+          "normalized_signed_distance_p10_p50_p90": [
+            0.10422466928771426,
+            0.1438079054242169,
+            0.19440186410639707
+          ],
+          "fraction_above_table_p95_residual": 1.0
+        },
+        "remote": {
+          "valid_samples": 496,
+          "normalized_signed_distance_p10_p50_p90": [
+            0.00016712056163636669,
+            0.007991711815028623,
+            0.013226715992651468
+          ],
+          "fraction_above_table_p95_residual": 0.0
+        }
+      }
+    }
+  ]
+}

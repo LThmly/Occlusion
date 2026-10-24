@@ -44,7 +44,7 @@ def save_result(directory, original, result, metadata):
     if not cv2.imwrite(str(directory / "preview.png"), preview):
         raise OSError("Cannot write preview")
     details = dict(metadata, depth_units="relative", depth_scale="arbitrary_per_observation",
-                   captured_at_utc=directory.name.split("-")[0],
+                   captured_at_utc=metadata.get("captured_at_utc", directory.name.split("-")[0]),
                    original_shape=list(original.shape), depth_shape=list(result.depth.shape),
                    inference_seconds=result.seconds,
                    intrinsics_source="model_prediction_not_calibration",

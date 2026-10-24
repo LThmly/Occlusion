@@ -1,0 +1,11 @@
+{
+  "description": "Manual interior regions for the shared bottle/phone/remote scene only; not a general segmentation model",
+  "reference_image_size": [640, 480],
+  "table_boxes": [[20, 35, 115, 180], [20, 240, 210, 450], [490, 35, 620, 180], [400, 415, 620, 465]],
+  "object_boxes": {
+    "bottle": [[175, 45, 225, 165]],
+    "phone": [[345, 140, 440, 175]],
+    "robot": [[275, 270, 315, 420]],
+    "remote": [[490, 285, 510, 305], [540, 335, 560, 355]]
+  }
+}

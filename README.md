@@ -8,7 +8,12 @@ Occlusion is an experimental RGB-only perception system for a LeRobot SO-101 wit
 
 The intended demonstration is concrete: an object sits behind an obstacle; the robot observes a partial scene, selects a useful reachable viewpoint, moves its camera, and incorporates newly visible surfaces into a shared reconstruction. The interface explains the selected view and measures the resulting improvement.
 
-**Status:** Milestone 1 software is implemented and has passed an offline CPU inference smoke test. Calibration, reconstruction, planning, and robot control are planned. This document defines the complete project; equations and algorithms beyond Milestone 1 describe the intended implementation.
+**Status:** Milestone 1 capture and depth software is working. Milestone 2 now
+includes a printable calibration target, offline intrinsic fitting with held-out
+validation, tested geometry functions, and relative-unit point-cloud export.
+Physical calibration and metric-scale validation are pending. Multi-view fusion,
+planning, and robot control remain planned. This document defines the complete
+project; equations describe the intended design where implementation is pending.
 
 | Project characteristic | Commitment |
 | --- | --- |
@@ -409,7 +414,7 @@ Useful ablations include movement penalty on/off, calibrated scale versus raw re
 | Milestone | Deliverable | Gate before advancing | Status |
 | --- | --- | --- | --- |
 | 1. RGB and depth | Capture, image inference, preview, numeric outputs | Verify camera and laptop latency/memory on tabletop scenes | Software implemented; offline CPU smoke test passed |
-| 2. Calibrated geometry | Intrinsics, distortion, metric anchor, single-view cloud | Held-out calibration/scale residuals acceptable for declared voxel size | Planned |
+| 2. Calibrated geometry | Intrinsics, distortion, metric anchor, single-view cloud | Held-out calibration/scale residuals acceptable for declared voxel size | Intrinsic fitting and relative cloud export implemented; physical calibration and metric anchor pending |
 | 3. Known viewpoints | LeRobot adapter, hand–eye calibration, commissioned transition graph | Approved slow transitions and synchronized known-pose observations | Planned |
 | 4. Multi-view fusion | Shared-frame cloud and consistency rejection | Stable overlap and independently measured accuracy | Planned |
 | 5. Active selection | Visibility grid, scoring, finite candidate planner, stopping | Useful replay choices; physical runs stay within approved envelope | Planned |
@@ -419,7 +424,18 @@ Planned synthetic tests cover known-pose back-projection, transform composition/
 
 ## Installation and current usage
 
-These commands run Milestone 1. Planned mapping, calibration, planner, and controller commands do not exist yet.
+The capture commands below run Milestone 1. For the next step, follow the
+[calibration and point-cloud guide](docs/calibration/README.md), starting with
+the [printable A4 checkerboard](docs/calibration/checkerboard-9x6-20mm.pdf).
+An [iPad checkerboard workflow](docs/calibration/ipad.md) provides a screen target
+and simultaneous detection feedback for paired RGB collection, without DA3.
+Without a target, use the [geometry quality workflow](docs/geometry-quality.md)
+to compare relative object relief on saved images. It includes a reproducible
+252-versus-504 experiment and normalized maps usable by the visualizer.
+For the dual-camera overlay, the [manual alignment guide](docs/manual-alignment.md)
+walks through frozen-pair capture, clicking matching features, fitting a relative
+scale/pose, and checking held-out points. It does not require a printed target.
+Multi-view mapping, planner, and controller commands do not exist yet.
 
 ### CPU setup on Linux
 
@@ -517,7 +533,10 @@ Capture-only saves `rgb.png`. Intrinsics/extrinsics are model predictions, not c
 pytest
 ```
 
-Eight hardware-independent tests pass: RGB channel preservation, lossless depth storage, invalid/constant depth display, camera-failure cleanup, capture without model loading, and live RGB/depth preview with saving only on keypress.
+Hardware-independent tests cover RGB/depth storage, capture and previews,
+synthetic intrinsic recovery with held-out views, calibration rejection, rigid
+transforms, resize-aware and distortion-aware back-projection, and point-cloud
+provenance. The exact current count is reported by `pytest`.
 
 The pinned DA3 source and CPU PyTorch processed upstream's `assets/examples/SOH/000.png`, saved numeric outputs, and produced a visually inspected preview. Offline cached inference also succeeded. Initial warm inference was approximately 0.11–0.19 seconds in the execution environment at resolution 252. This is a smoke test, not a laptop, tabletop, or accuracy benchmark.
 
@@ -542,20 +561,25 @@ Current files:
 ├── src/occlusion/
 │   ├── __init__.py
 │   ├── camera.py          # USB acquisition and RGB loading
+│   ├── calibration.py     # Printable board and offline intrinsic calibration
 │   ├── depth.py           # DA3-Small CPU/CUDA adapter
+│   ├── geometry.py        # Camera rays, resize-aware intrinsics, rigid transforms
 │   ├── outputs.py         # Numeric outputs, metadata, previews
+│   ├── pointcloud.py      # Colored PLY export in relative camera-frame units
+│   ├── quality.py         # Same-image table/object relief diagnostics
+│   ├── reconstruction.py  # Robust plane fitting; multi-view fusion pending
 │   └── main.py            # Milestone 1 CLI
-└── tests/
-    └── test_pipeline.py
+├── docs/calibration/      # Printable PDF and hardware collection instructions
+└── tests/                # Pipeline, calibration, and geometry checks
 ```
 
-Planned modules are added when their milestones require them:
+Module responsibilities and remaining extensions:
 
 | Module or directory | Responsibility |
 | --- | --- |
-| `calibration.py` | Intrinsics, distortion, hand–eye records, validation |
-| `geometry.py` | Back-projection, transforms, scale alignment |
-| `reconstruction.py` | Accepted cloud fusion and consistency checks |
+| `calibration.py` | Intrinsics and distortion implemented; hand–eye and metric scale pending |
+| `geometry.py` | Back-projection and transforms implemented; scale alignment pending |
+| `reconstruction.py` | Plane fitting implemented; accepted cloud fusion and consistency checks pending |
 | `visibility.py` | Ray traversal, free/occupied/unknown state, frontiers |
 | `nbv.py` | Scoring, movement cost, deterministic selection |
 | `robot.py` | Isolated LeRobot connection, observations, approved motion |
@@ -584,7 +608,11 @@ complex storage until a demonstrated need warrants them.
 | Compute budget | CPU replay, later GPU benchmark | Latency and peak memory |
 | Reference geometry | Independent reference or explicitly labeled proxy | Fixed reference and coverage denominator |
 
-Calibration tolerances, board placement, candidate count, voxel width, depth range, and score weights remain commissioning decisions. Record them before comparative evaluation. Next: real-camera tabletop capture and a measured CPU baseline, followed by calibrated single-view geometry.
+Calibration tolerances, board placement, candidate count, voxel width, depth
+range, and score weights remain commissioning decisions. Record them before
+comparative evaluation. Next: print the target, collect varied views for each
+camera, validate intrinsics, and then establish metric scale against independent
+measured geometry. See the [collection guide](docs/calibration/README.md).
 
 ## References
 
@@ -598,6 +626,10 @@ Calibration tolerances, board placement, candidate count, voxel width, depth ran
 Depth Anything 3 was publicly released in November 2025, making it the project's recent technology component. Hackathon eligibility depends on the event's actual date and rules; older active-vision references establish research context. [Upstream release announcement](https://github.com/ByteDance-Seed/Depth-Anything-3#-news)
 
 ### Dual-camera Rerun visualizer
+
+To align the two clouds without a checkerboard, follow the
+[manual alignment workflow](docs/manual-alignment.md). It generates the
+`--geometry` file below and binds saved-pair replay to the fitted observations.
 
 Install the optional viewer alongside the existing DA3 inference environment:
 

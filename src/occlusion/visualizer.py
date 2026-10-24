@@ -56,6 +56,9 @@ def load_capture(directory):
 
 def log_frame(rr, name, result, settings, args):
     """Log aligned images and separate RGB/identity-colored overlay entities."""
+    if ("image_size" in settings
+            and list(settings["image_size"]) != [result.depth.shape[1], result.depth.shape[0]]):
+        raise ValueError(f"{name}: alignment image size differs from depth; use the fitted resolution or refit")
     rr.log(f"images/{name}/rgb", rr.Image(result.rgb))
     rr.log(f"images/{name}/depth", rr.DepthImage(result.depth))
     k = settings.get("intrinsics", result.intrinsics)
@@ -82,6 +85,20 @@ def run(args):
         settings = geometry.get(name, {})
         if not isinstance(settings, dict):
             raise ValueError(f"{name} geometry must be an object")
+    alignment = geometry.get("_alignment", {})
+    if not isinstance(alignment, dict):
+        raise ValueError("_alignment metadata must be an object")
+    if alignment.get("mode") == "manual_similarity_uncalibrated" and args.wrist_capture:
+        # Fitted scale and rays are observation-specific. Refuse a different
+        # replay pair instead of silently suggesting its alignment is validated.
+        import hashlib
+        for name in CAMERAS:
+            directory = getattr(args, f"{name}_capture")
+            expected = alignment["capture_identity"][name]
+            actual = {filename: hashlib.sha256((directory / filename).read_bytes()).hexdigest()
+                      for filename in expected}
+            if actual != expected:
+                raise ValueError(f"{name}: geometry was fitted to another capture; refit this pair")
     rr.init("occlusion-dual-camera", spawn=not args.save)
     if args.save:
         args.save.parent.mkdir(parents=True, exist_ok=True)
@@ -100,6 +117,10 @@ def run(args):
             "superimpose camera origins. Supply shared-frame poses and matched depth scales "
             "with --geometry for meaningful alignment. Wrist pose must match each observation. "
             "Live RGB pairs are read before sequential inference; they are not hardware synchronized.")
+    if alignment.get("mode") == "manual_similarity_uncalibrated":
+        note = ("Manual alignment in overhead-camera relative units, not meters. "
+                "Fitted only on the saved stationary pair; new depth scales or wrist motion "
+                "can invalidate this transform. This is not metric calibration or hardware time sync.")
     print(note, flush=True)
     rr.log("notes", rr.TextDocument(note), static=True)
     try:

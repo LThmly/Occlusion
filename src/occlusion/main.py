@@ -51,6 +51,7 @@ def run(args):
                 metadata = {
                     "model": DEFAULT_MODEL, "device": args.device,
                     "process_resolution": args.resolution,
+                    "process_res_method": "upper_bound_resize",
                     "source": str(args.image) if args.image else f"camera:{args.camera}",
                     "peak_cuda_allocated_bytes": estimator.peak_cuda_bytes(),
                     "process_peak_rss_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
