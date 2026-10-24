@@ -53,3 +53,50 @@ def test_capture_only_cli_does_not_load_model(tmp_path, monkeypatch):
                                    "--no-display", "--output", str(tmp_path / "out")])
     main()
     assert len(list((tmp_path / "out").glob("*/rgb.png"))) == 1
+
+
+@pytest.mark.parametrize("rgb_only", [True, False])
+def test_live_preview_saves_only_on_keypress(tmp_path, monkeypatch, rgb_only):
+    import occlusion.main as cli
+    import occlusion.camera as camera_module
+    import occlusion.depth as depth_module
+
+    reads, displays, releases = [], [], []
+    frame = np.full((20, 30, 3), [200, 80, 10], dtype=np.uint8)
+
+    class FakeCamera:
+        def __init__(self, source):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def read(self):
+            reads.append(True)
+            return frame
+
+        def __exit__(self, *_):
+            releases.append(True)
+
+    def estimator(*args):
+        assert not rgb_only, "RGB preview loaded the depth model"
+        return SimpleNamespace(
+            predict=lambda rgb: DepthResult(rgb, np.ones((20, 30), dtype=np.float32),
+                                            None, None, None, 0.1),
+            peak_cuda_bytes=lambda: None)
+
+    monkeypatch.setattr(camera_module, "USBCamera", FakeCamera)
+    monkeypatch.setattr(depth_module, "DA3Estimator", estimator)
+    monkeypatch.setattr(cv2, "imshow", lambda *args: displays.append(args[1]))
+    keys = iter([-1, ord(" "), ord("q")])
+    monkeypatch.setattr(cv2, "waitKey", lambda _: next(keys))
+    monkeypatch.setattr(cv2, "destroyAllWindows", lambda: None)
+    argv = ["occlusion", "--preview", "--output", str(tmp_path)]
+    if rgb_only:
+        argv.append("--capture-only")
+    monkeypatch.setattr("sys.argv", argv)
+    cli.main()
+    assert len(reads) == len(displays) == 3
+    assert releases == [True]
+    assert len(list(tmp_path.glob("*/rgb.png"))) == 1
+    assert len(list(tmp_path.glob("*/depth.npy"))) == (0 if rgb_only else 1)

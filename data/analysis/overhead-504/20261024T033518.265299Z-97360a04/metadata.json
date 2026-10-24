@@ -1,0 +1,24 @@
+{
+  "model": "depth-anything/DA3-SMALL",
+  "device": "cpu",
+  "process_resolution": 504,
+  "source": "data/overhead-depth/20261024T033417.716243Z-83ee4947/rgb.png",
+  "peak_cuda_allocated_bytes": null,
+  "process_peak_rss_bytes": 904994816,
+  "depth_units": "relative",
+  "depth_scale": "arbitrary_per_observation",
+  "captured_at_utc": "20261024T033518.265299Z",
+  "original_shape": [
+    480,
+    640,
+    3
+  ],
+  "depth_shape": [
+    378,
+    504
+  ],
+  "inference_seconds": 0.34016559799783863,
+  "intrinsics_source": "model_prediction_not_calibration",
+  "extrinsics_convention": "OpenCV world-to-camera, model reference frame",
+  "confidence_note": "model score; not calibrated geometric uncertainty"
+}

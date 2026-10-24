@@ -1,0 +1,24 @@
+{
+  "model": "depth-anything/DA3-SMALL",
+  "device": "cpu",
+  "process_resolution": 252,
+  "source": "camera:/dev/video0",
+  "peak_cuda_allocated_bytes": null,
+  "process_peak_rss_bytes": 838565888,
+  "depth_units": "relative",
+  "depth_scale": "arbitrary_per_observation",
+  "captured_at_utc": "20261024T033417.716243Z",
+  "original_shape": [
+    480,
+    640,
+    3
+  ],
+  "depth_shape": [
+    196,
+    252
+  ],
+  "inference_seconds": 0.06565453200164484,
+  "intrinsics_source": "model_prediction_not_calibration",
+  "extrinsics_convention": "OpenCV world-to-camera, model reference frame",
+  "confidence_note": "model score; not calibrated geometric uncertainty"
+}

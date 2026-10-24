@@ -444,6 +444,28 @@ Keep `HF_HOME` set in later shells to reuse the project-local cache. First infer
 
 ### Capture and infer
 
+For live RGB preview, use `--preview --capture-only`. Press Space or `s` to save
+the current frame and `q`/Escape to quit. Preview does not save continuously:
+
+```bash
+# Logitech overhead camera
+occlusion --camera /dev/video0 --preview --capture-only --output data/overhead
+# Innomaker wrist camera
+occlusion --camera /dev/video2 --preview --capture-only --output data/wrist
+```
+
+Omit `--capture-only` for a continuously updated RGB/depth preview:
+
+```bash
+occlusion --camera /dev/video0 --preview --output data/overhead-depth
+```
+
+Depth preview updates sequentially at inference speed; RGB-only preview avoids
+loading the model. Space/`s` saves the displayed RGB/depth observation together.
+`--preview` requires a display and replaces the snapshot/`--frames` workflow.
+Device numbers may change on reconnect; persistent `/dev/v4l/by-id/` paths can
+also be passed to `--camera`.
+
 RGB capture requires only the base package, without Torch or DA3:
 
 ```bash
@@ -466,6 +488,14 @@ occlusion --camera 0 --frames 0
 
 Defaults are CPU, resolution 252, and one observation. Resolution must be a multiple of 14 and at least 28. `--frames 0` repeats until stopped. Press `q`/Escape when the window is responsive or Ctrl-C in the terminal; inference blocks display handling between results. The final snapshot waits for a key. Use `--no-display` on headless hosts. Every processed frame is saved, so continuous runs consume disk space. Camera permissions must allow device access.
 
+On Linux Wayland sessions with XWayland available (`DISPLAY` is set), the CLI defaults Qt to its bundled `xcb` backend unless `QT_QPA_PLATFORM` is already set. To override a shell setting that requests the unavailable Wayland plugin:
+
+```bash
+QT_QPA_PLATFORM=xcb occlusion --camera /dev/video2 --output data/depth-test
+```
+
+This requires a running XWayland display. If unavailable, use `--no-display`; images and numeric depth are still saved. The Qt backend can be selected through [`QT_QPA_PLATFORM`](https://doc.qt.io/qt-6/qpa.html#selecting-a-qpa-plugin).
+
 ### Saved outputs
 
 Each inference creates a unique directory under `data/captures/`:
@@ -487,11 +517,18 @@ Capture-only saves `rgb.png`. Intrinsics/extrinsics are model predictions, not c
 pytest
 ```
 
-Six hardware-independent tests passed during initial implementation: RGB channel preservation, lossless depth storage, invalid/constant depth display, camera-failure cleanup, and capture without model loading.
+Eight hardware-independent tests pass: RGB channel preservation, lossless depth storage, invalid/constant depth display, camera-failure cleanup, capture without model loading, and live RGB/depth preview with saving only on keypress.
 
 The pinned DA3 source and CPU PyTorch processed upstream's `assets/examples/SOH/000.png`, saved numeric outputs, and produced a visually inspected preview. Offline cached inference also succeeded. Initial warm inference was approximately 0.11–0.19 seconds in the execution environment at resolution 252. This is a smoke test, not a laptop, tabletop, or accuracy benchmark.
 
-USB capture, GUI display, CUDA, metric scale, reconstruction, and active robot perception remain unverified. There are no NBV results yet.
+USB RGB capture from both cameras and wrist/overhead CPU depth inference have
+since been exercised. On the saved object scene, resolution 504 made the robot
+silhouette clearer than 252, while the phone and remote remained challenging.
+This is a qualitative comparison, not validated geometric accuracy. Shared
+captures, quality reports, and a replay command are in [data/README.md](data/README.md).
+GUI behavior still needs confirmation on each desktop. CUDA, metric scale,
+reconstruction, and active robot perception remain unverified. There are no NBV
+results yet.
 
 ## Repository organization
 
@@ -526,7 +563,12 @@ Planned modules are added when their milestones require them:
 | `configs/` | Versioned calibration, bounds, candidates, experiment parameters |
 | `scripts/` | Capture, replay, calibration, evaluation entry points |
 
-`data/`, `vendor/`, and the virtual environment are ignored by Git. Keep original observations immutable during experiments and identify calibration/model revisions in derived artifacts. Avoid services, training infrastructure, and complex storage until a demonstrated need warrants them.
+Selected small camera datasets and reports under `data/` are versioned for
+teammate replay; model caches, upstream sample outputs, and new experiment
+directories remain ignored by default. `vendor/` and the virtual environment are
+also ignored. Keep original observations immutable and identify calibration/model
+revisions in derived artifacts. Avoid services, training infrastructure, and
+complex storage until a demonstrated need warrants them.
 
 ## Limitations and open decisions
 
